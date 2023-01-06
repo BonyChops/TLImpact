@@ -64,8 +64,8 @@ const client = new TwitterApi({
 
     devlog(filepaths);
 
-    const mediaId = await client.v1.uploadMedia(filepaths[0], { mimeType: EUploadMimeType.Jpeg });
+    const mediaIds = await Promise.all(filepaths.map(async(filepath) => client.v1.uploadMedia(filepath, { mimeType: EUploadMimeType.Jpeg })));
 
-    await client.v2.tweet({ text: sd, media: { media_ids: [mediaId] } });
+    await client.v2.tweet({ text: sd, media: { media_ids: mediaIds } });
     await client.v2.like(process.env.BOT_ID, tweet.id);
 })();
