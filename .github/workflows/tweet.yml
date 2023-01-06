@@ -15,12 +15,8 @@ jobs:
         with:
           node-version: 18
       - run: sudo apt install -y imagemagick
-      - run: echo $ECHO_SD > echo-sd
-        env:
-          ECHO_SD: ${{ secrets.ECHO_SD }}
-      - run: echo $ZOOMBLUR > zoomblur
-        env:
-          ZOOMBLUR: ${{ secrets.ZOOMBLUR }}
+      - run: wget -O ./echo-sd ${{ secrets.ECHO_SD }}
+      - run: wget -O ./zoomblur ${{ secrets.ZOOMBLUR }}
       - run: chmod +x zoomblur echo-sd
       - run: npm ci
       - run: node app
