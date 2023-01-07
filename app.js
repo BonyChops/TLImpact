@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { TwitterApi, EUploadMimeType } = require("twitter-api-v2");
 const { execSync } = require('child_process');
+const twitter = require("twitter-text");
 const shellEscape = require("shell-escape");
 const exec = (command) => {
     try {
@@ -22,6 +23,21 @@ const devlog = (data) => {
     if (process.env.DEV === "TRUE") {
         console.dir(data, { depth: 4 });
     }
+}
+
+const generateSd = (text) => {
+    const job = (text) => exec(shellEscape([`${__dirname}/echo-sd`, ...text.split("\n")]));
+    let textBuf = text;
+    let result = job(textBuf);
+    if(twitter.parseTweet(result).valid){
+        return result;
+    }
+
+    do{
+        textBuf = textBuf.substring(0, textBuf.length - 1);
+        result = job(textBuf + "(文字数)");
+    }while(!twitter.parseTweet(result).valid);
+    return result;
 }
 
 const client = new TwitterApi({
@@ -54,7 +70,7 @@ const client = new TwitterApi({
         return toPath;
     });
     const textWithoutUrls = tweet.text.replace(urlRegex, '').trim();
-    const sd = textWithoutUrls === "" ? "" : exec(shellEscape([`${__dirname}/echo-sd`, ...textWithoutUrls.split("\n")]));
+    const sd = textWithoutUrls === "" ? "" : generateSd(textWithoutUrls);
     console.log(sd);
     if (!tweet) {
         process.exit(0);
