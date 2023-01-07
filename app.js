@@ -59,6 +59,9 @@ const client = new TwitterApi({
     devlog(tweets);
     devlog(homeTimeline.rateLimit);
     const tweet = process.env.TWEET_ID ? tweets.find(v => v.id === process.env.TWEET_ID) : tweets[getRandomInt(0, tweets.length)];
+    if (!tweet) {
+        process.exit(0);
+    }
     const media = homeTimeline.includes.medias(tweet);
     devlog(tweet);
     devlog(media);
@@ -72,9 +75,7 @@ const client = new TwitterApi({
     const textWithoutUrls = tweet.text.replace(urlRegex, '').trim();
     const sd = textWithoutUrls === "" ? "" : generateSd(textWithoutUrls);
     console.log(sd);
-    if (!tweet) {
-        process.exit(0);
-    }
+
 
     if (process.env.MODE === "test") {
         process.exit(0);
