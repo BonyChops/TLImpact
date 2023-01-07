@@ -37,7 +37,9 @@ const client = new TwitterApi({
 
 (async () => {
     const homeTimeline = await client.v2.homeTimeline({ exclude: ['replies', "retweets"], max_results: 100, expansions: ["author_id", "attachments.media_keys"], "user.fields": ["name", "profile_image_url", "id", "protected", "username"], "media.fields": ["type", "url"] });
-    const tweets = homeTimeline.tweets.filter(v => v.author_id !== process.env.BOT_ID && v.attachments?.media_keys)
+    const likedTweetData = await client.v2.userLikedTweets(process.env.BOT_ID, {max_results: 100});
+    const likedTweets = likedTweetData.tweets;
+    const tweets = homeTimeline.tweets.filter(v => v.author_id !== process.env.BOT_ID && v.attachments?.media_keys && !likedTweets.map(v => v.id).includes(v.id))
     devlog(tweets);
     devlog(homeTimeline.rateLimit);
     const tweet = process.env.TWEET_ID ? tweets.find(v => v.id === process.env.TWEET_ID) : tweets[getRandomInt(0, tweets.length)];
